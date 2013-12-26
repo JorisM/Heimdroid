@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TheDoorPi.iml" filepath="$PROJECT_DIR$/TheDoorPi.iml" />
-      <module fileurl="file://$PROJECT_DIR$/door/door.iml" filepath="$PROJECT_DIR$/door/door.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Heimdroid.iml" filepath="$PROJECT_DIR$/Heimdroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>

@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="socketio">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/door/libs/socketio.jar!/" />
+      <root url="jar://$PROJECT_DIR$/app/libs/socketio.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
