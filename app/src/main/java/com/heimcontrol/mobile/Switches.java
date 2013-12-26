@@ -3,7 +3,10 @@ package com.heimcontrol.mobile;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +23,7 @@ import io.socket.*;
 public class Switches extends Activity {
 
     private SocketIO socket;
+    private String url;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +34,9 @@ public class Switches extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        this.url = prefs.getString("heimcontrol_url", "");
         connectToSocket();
 
         // This line is cached until the connection is establisched.
@@ -61,9 +68,10 @@ public class Switches extends Activity {
         }
     }
 
-    public void logout(View v)
+    public void logout()
     {
         ((Heimcontrol) getApplicationContext()).user.setKey("");
+        finish();
     }
 
     public void connectToSocket()
@@ -71,7 +79,7 @@ public class Switches extends Activity {
 
         try {
             String authKey = User.getKey();
-            socket = new SocketIO("http://192.168.1.4:8080/");
+            socket = new SocketIO(this.url);
             socket.addHeader("authorization", authKey);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -136,6 +144,14 @@ public class Switches extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+
+            return true;
+        }
+        if (id == R.id.action_settings) {
+            this.logout();
+
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -31,6 +31,10 @@ android {
 }
 
 dependencies {
+
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
+    // The Support Repository (separate from the corresponding library) can be found in the Extras category.
+    // compile 'com.android.support:support-v4:18.0.0'
     compile files('libs/android-async-http-1.4.4.jar')
     compile files('libs/socketio.jar')
 }

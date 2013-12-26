@@ -23,6 +23,10 @@
             android:name="com.heimcontrol.mobile.Switches"
             android:label="@string/title_activity_switches" >
         </activity>
+        <activity
+            android:name="com.heimcontrol.mobile.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>
