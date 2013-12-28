@@ -12,11 +12,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.apache.http.Header;
 import org.json.*;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import io.socket.*;
 
@@ -37,35 +50,79 @@ public class Switches extends Activity {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         this.url = prefs.getString("heimcontrol_url", "");
-        connectToSocket();
+        this.setSwitches();
+        this.connectToSocket();
+    }
+    public void setSwitches()
+    {
 
-        // This line is cached until the connection is establisched.
+        final ArrayList<GPIO> list = new ArrayList<GPIO>();
 
+        RestClient.get(
+                "api/gpio",
+                new JsonHttpResponseHandler()
+                {
+                    @Override
+                    public void onSuccess(JSONArray responseData) {
+                        try {
+                            for(int i = 0;i < responseData.length(); i++)
+                            {
+                                JSONObject obj = responseData.getJSONObject(i);
+                                String id = obj.getString("_id");
+                                String value = obj.getString("value");
+                                String direction = obj.getString("direction");
+                                String description = obj.getString("description");
+                                String pin = obj.getString("pin");
+                                list.add(new GPIO(id, description, direction, value, pin));
+                            }
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Error " + statusCode + " while fetching toggles";
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                }
+        );
+
+        final ListView listview = (ListView) findViewById(R.id.switchesList);
+
+
+
+        final GPIOArrayAdapter adapter = new GPIOArrayAdapter(this, android.R.layout.simple_list_item_1, list);
+        listview.setAdapter(adapter);
     }
 
 
-    public void openDoor(View v)
+
+    public void notifyHeimcontrol(GPIO obj, boolean on)
     {
-        if(socket.isConnected())
+        if(!socket.isConnected())
+            connectToSocket();
+
+        String value = obj.getValue();
+        if(on)
         {
-            JSONObject params = new JSONObject();
-            try {
-                params.put("id", "52bc1202836586f90d89c83e");
-                params.put("value", 1);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            socket.emit("gpio-toggle", params);
-            try {
-                Thread.sleep(5000);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-            socket.emit("gpio-toggle", params);
+            value = "1";
         }else
         {
-            connectToSocket();
+            value = "0";
         }
+        obj.setValue(value);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("value", value);
+            params.put("id", obj.get_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        socket.emit("gpio-toggle", params);
     }
 
     public void logout()
@@ -76,7 +133,6 @@ public class Switches extends Activity {
 
     public void connectToSocket()
     {
-
         try {
             String authKey = User.getKey();
             socket = new SocketIO(this.url);
@@ -149,9 +205,14 @@ public class Switches extends Activity {
 
             return true;
         }
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_logout) {
             this.logout();
-
+            return true;
+        }
+        if (id == R.id.action_refresh) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            this.url = prefs.getString("heimcontrol_url", "");
+            this.connectToSocket();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -173,4 +234,67 @@ public class Switches extends Activity {
         }
     }
 
+
+    private class GPIOArrayAdapter extends ArrayAdapter<GPIO> {
+
+        List<GPIO> objects;
+
+        public GPIOArrayAdapter(Context context, int textViewResourceId,
+                                  List<GPIO> objects) {
+            super(context, textViewResourceId, objects);
+            this.objects = objects;
+
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            GPIOHolder holder = null;
+
+            if(row == null)
+            {
+                LayoutInflater inflater = ((Activity)getContext()).getLayoutInflater();
+                row = inflater.inflate(R.layout.fragment_switches, parent, false);
+
+                holder = new GPIOHolder();
+                holder.pin = (TextView)row.findViewById(R.id.pin);
+                holder.description = (TextView)row.findViewById(R.id.description);
+
+                row.setTag(holder);
+
+                GPIO pos = objects.get(position);
+                holder.description.setText(pos.getDescription());
+                holder.pin.setText(pos.getPin());
+
+                Switch sswitch = (Switch)row.findViewById(R.id.pinSwitch);
+                sswitch.setTag(pos);
+                sswitch.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        GPIO item = (GPIO) buttonView.getTag();
+                        notifyHeimcontrol(item, isChecked);
+                    }
+                });
+            }
+            else
+            {
+                holder = (GPIOHolder)row.getTag();
+            }
+
+            return row;
+        }
+
+    }
+    static class GPIOHolder
+    {
+        TextView _id;
+        TextView description;
+        TextView direction;
+        TextView value;
+        TextView pin;
+    }
+
 }
+
+

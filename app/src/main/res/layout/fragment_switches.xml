@@ -2,29 +2,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/switchesListItem"
+
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.heimcontrol.mobile.Switches$PlaceholderFragment">
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
 
     <TextView
-        android:text="Open the door"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView" />
+        android:id="@+id/pinLabel"
+        android:text="Pin"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pin"
+        android:textStyle="bold"
+        android:layout_alignTop="@+id/pinLabel"
+        android:layout_toRightOf="@+id/pinLabel"
+        android:width="20dp"
+        android:layout_marginLeft="80dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:id="@+id/descriptionLabel"
+        android:text="Description"/>
 
-    <Button
+    <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/description"
+    android:textStyle="bold"
+    android:layout_alignTop="@+id/descriptionLabel"
+    android:layout_toRightOf="@+id/descriptionLabel"
+    android:layout_marginLeft="36dp" />
+s
+    <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="open"
-        android:id="@+id/button"
-        android:layout_marginTop="28dp"
-        android:layout_below="@+id/textView"
+        android:id="@+id/pinSwitch"
+        android:layout_alignBottom="@+id/description"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:onClick="openDoor" />
+        android:checked="false" />
+
 
 </RelativeLayout>
+

@@ -4,4 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.heimcontrol.mobile.Switches"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame">
+
+    <ListView android:id="@+id/switchesList"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+</FrameLayout>
