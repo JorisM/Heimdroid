@@ -1,7 +1,10 @@
 Heimdroid
 =========
 
-Android app for heimcontroljs
+http://jorism.github.io/Heimdroid
+
+
+Android app for heimcontrol.js
 
 On your heimcontrol Server, check out this branch: `https://github.com/JorisM/heimcontrol.js/tree/feature/api`
 
