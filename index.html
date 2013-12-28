@@ -36,12 +36,21 @@
 
 <p>Android app for heimcontroljs</p>
 
+<img src="images/switches.png" style="max-width: 350px">
+
 <p>On your heimcontrol Server, check out this branch: <code>https://github.com/JorisM/heimcontrol.js/tree/feature/api</code></p>
 
 <p>Download and install app, point your settings url to your Heimcontroljs Server and you are good to go.</p>
 
 <p>Note: I had to enable port 8080 or whatever on my local firewall, otherwise requests didn't go through. If you have your Server listening on port 80, you can
 don't need to specifiy the port. (i.e <code>http://heimcontrol:80/</code> --&gt; <code>http://heimcontrol/</code>)</p>
+<p>
+Known bugs, will be fixed soon:
+<ul>
+	<li>If you change your url in settings, you need to manually kill the app and restart it, otherwise it won't change the url</li>
+	<li>Changes from Server are not pushed to android device yet.</li>
+</ul>
+</p>
       </section>
     </div>
 
