@@ -14,7 +14,6 @@ public class Heimcontrol extends Application
         super.onCreate();
         user = new User(this.getSharedPreferences("Heimcontrol", MODE_PRIVATE));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        RestClient.setBaseUrl(prefs.getString("heimcontrol_url", ""), this);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.heimcontrol.mobile;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,10 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +27,7 @@ public class Login extends Activity
 {
 
     SharedPreferences preferences;
+    Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -32,6 +36,7 @@ public class Login extends Activity
         preferences = getPreferences(MODE_PRIVATE);
 
         setContentView(R.layout.fragment_login);
+        context = getApplicationContext();
 
         loggedIn();
     }
@@ -77,16 +82,29 @@ public class Login extends Activity
                             e.printStackTrace();
                         }
                     }
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        if(statusCode == 401)
+                        {
+                            CharSequence text = statusCode + ": Wrong email or password";
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }else
+                        {
+                            CharSequence text = "Error " + statusCode + " while trying to log in";
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
+                    }
                 }
         );
     }
 
     public void loggedIn()
     {
-        Log.v("Bejoo", "LoggedIn");
         String key = ((Heimcontrol)getApplicationContext()).user.getKey();
-        Log.v("Bejoo", "Key: "+key);
-
         if (key != "")
         {
             Intent intent = new Intent(this, Switches.class);

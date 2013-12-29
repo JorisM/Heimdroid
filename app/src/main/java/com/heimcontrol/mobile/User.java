@@ -13,14 +13,14 @@ public class User
     User(SharedPreferences preferences)
     {
         this.preferences = preferences;
-        key = this.preferences.getString("application-key", "");
+        key = this.preferences.getString("heimcontrol_url", "");
     }
 
     public void setKey(String keyA)
     {
         key = keyA;
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("application-key", key);
+        editor.putString("heimcontrol_url", key);
         editor.commit();
     }
 
