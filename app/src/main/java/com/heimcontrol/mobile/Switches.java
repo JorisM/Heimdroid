@@ -33,39 +33,71 @@ import java.util.List;
 
 import io.socket.*;
 
+import static android.widget.Toast.makeText;
+
 public class Switches extends Activity {
 
     private SocketIO socket;
     private String url;
+    private Context context;
+    private GPIOArrayAdapter listAdapter;
+    private ArrayList<GPIO> switchesList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_switches);
+        context = getApplicationContext();
 
+        String key = ((Heimcontrol)getApplicationContext()).user.getKey();
+
+        if(switchesList == null)
+            switchesList = new ArrayList<GPIO>();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        this.url = prefs.getString("heimcontrol_url", "");
+
+        if (key.equals("") || this.url.equals(""))
+        {
+            CharSequence text = "No key available, please check heimcontrol url in settings and log in.";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = makeText(context, text, duration);
+            toast.show();
+            this.logout();
+        }
+
+        RestClient.setBaseUrl(this.url, this);
+
+        setContentView(R.layout.activity_switches);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .commit();
         }
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        this.url = prefs.getString("heimcontrol_url", "");
-        this.setSwitches();
         this.connectToSocket();
+
+        this.setSwitches();
+        final ListView listview = (ListView) findViewById(R.id.switchesList);
+        listAdapter = new GPIOArrayAdapter(this, R.layout.fragment_switches, getSwitchesList());
+        listview.setAdapter(listAdapter);
     }
+
+    public ArrayList<GPIO> getSwitchesList()
+    {
+        if(switchesList == null)
+            switchesList = new ArrayList<GPIO>();
+        return switchesList;
+    }
+
     public void setSwitches()
     {
-
-        final ArrayList<GPIO> list = new ArrayList<GPIO>();
-
+        final Switches that = this;
         RestClient.get(
-                "api/gpio",
-                new JsonHttpResponseHandler()
-                {
+                "api/gpio/get",
+                new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONArray responseData) {
                         try {
-                            for(int i = 0;i < responseData.length(); i++)
-                            {
+                            ArrayList<GPIO> list = new ArrayList<GPIO>();
+                            for (int i = 0; i < responseData.length(); i++) {
                                 JSONObject obj = responseData.getJSONObject(i);
                                 String id = obj.getString("_id");
                                 String value = obj.getString("value");
@@ -74,30 +106,39 @@ public class Switches extends Activity {
                                 String pin = obj.getString("pin");
                                 list.add(new GPIO(id, description, direction, value, pin));
                             }
+                            setSwitches(list);
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
+
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                        Context context = getApplicationContext();
+                        if (statusCode == 401) {
+                            that.logout();
+                        }
                         CharSequence text = "Error " + statusCode + " while fetching toggles";
                         int duration = Toast.LENGTH_SHORT;
-                        Toast toast = Toast.makeText(context, text, duration);
+                        Toast toast = makeText(context, text, duration);
                         toast.show();
                     }
                 }
         );
-
-        final ListView listview = (ListView) findViewById(R.id.switchesList);
-
-
-
-        final GPIOArrayAdapter adapter = new GPIOArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
     }
 
+    private synchronized void setSwitches(ArrayList<GPIO> list)
+    {
+        getSwitchesList().clear();
+        getSwitchesList().addAll(list);
+        listAdapter.notifyDataSetChanged();
+    }
+
+
+    public void refreshList()
+    {
+        this.setSwitches();
+    }
 
 
     public void notifyHeimcontrol(GPIO obj, boolean on)
@@ -127,11 +168,18 @@ public class Switches extends Activity {
     public void logout()
     {
         ((Heimcontrol) getApplicationContext()).user.setKey("");
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        // finish the Switches Activity, so that we have no entry in the history
         finish();
     }
 
     public void connectToSocket()
     {
+
+        if(socket != null && socket.isConnected())
+            return;
+
         try {
             String authKey = User.getKey();
             socket = new SocketIO(this.url);
@@ -139,6 +187,7 @@ public class Switches extends Activity {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
         socket.connect(new IOCallback() {
             @Override
             public void onMessage(JSONObject json, IOAcknowledge ack) {
@@ -176,11 +225,10 @@ public class Switches extends Activity {
                 Context context = getApplicationContext();
                 CharSequence text = "Some triggered the door";
                 int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, duration);
+                Toast toast = makeText(context, text, duration);
                 toast.show();
             }
         });
-
     }
 
 
@@ -209,8 +257,7 @@ public class Switches extends Activity {
             return true;
         }
         if (id == R.id.action_refresh) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            this.url = prefs.getString("heimcontrol_url", "");
+            this.refreshList();
             this.connectToSocket();
             return true;
         }
