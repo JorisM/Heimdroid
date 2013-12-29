@@ -33,6 +33,8 @@ import java.util.List;
 
 import io.socket.*;
 
+import static android.widget.Toast.makeText;
+
 public class Switches extends Activity {
 
     private SocketIO socket;
@@ -44,30 +46,32 @@ public class Switches extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
 
         String key = ((Heimcontrol)getApplicationContext()).user.getKey();
-        if (key.equals(""))
-        {
-            CharSequence text = "No key available, please log in.";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-            this.logout();
-        }
+
         if(switchesList == null)
             switchesList = new ArrayList<GPIO>();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         this.url = prefs.getString("heimcontrol_url", "");
-        RestClient.setBaseUrl(prefs.getString("heimcontrol_url", ""), this);
+
+        if (key.equals("") || this.url.equals(""))
+        {
+            CharSequence text = "No key available, please check heimcontrol url in settings and log in.";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = makeText(context, text, duration);
+            toast.show();
+            this.logout();
+        }
+
+        RestClient.setBaseUrl(this.url, this);
 
         setContentView(R.layout.activity_switches);
-
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .commit();
         }
-        context = getApplicationContext();
         this.connectToSocket();
 
         this.setSwitches();
@@ -116,7 +120,7 @@ public class Switches extends Activity {
                         }
                         CharSequence text = "Error " + statusCode + " while fetching toggles";
                         int duration = Toast.LENGTH_SHORT;
-                        Toast toast = Toast.makeText(context, text, duration);
+                        Toast toast = makeText(context, text, duration);
                         toast.show();
                     }
                 }
@@ -221,7 +225,7 @@ public class Switches extends Activity {
                 Context context = getApplicationContext();
                 CharSequence text = "Some triggered the door";
                 int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, duration);
+                Toast toast = makeText(context, text, duration);
                 toast.show();
             }
         });

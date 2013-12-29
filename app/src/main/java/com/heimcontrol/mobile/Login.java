@@ -26,15 +26,12 @@ import java.io.UnsupportedEncodingException;
 public class Login extends Activity
 {
 
-    SharedPreferences preferences;
     Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        preferences = getPreferences(MODE_PRIVATE);
-
         setContentView(R.layout.fragment_login);
         context = getApplicationContext();
 
