@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,6 +35,7 @@ import java.util.List;
 import io.socket.*;
 
 import static android.widget.Toast.makeText;
+
 
 public class Switches extends Activity {
 
@@ -94,7 +96,8 @@ public class Switches extends Activity {
                 "api/gpio/get",
                 new JsonHttpResponseHandler() {
                     @Override
-                    public void onSuccess(JSONArray responseData) {
+                    public void onSuccess(JSONArray responseData)
+                    {
                         try {
                             ArrayList<GPIO> list = new ArrayList<GPIO>();
                             for (int i = 0; i < responseData.length(); i++) {
@@ -104,7 +107,7 @@ public class Switches extends Activity {
                                 String direction = obj.getString("direction");
                                 String description = obj.getString("description");
                                 String pin = obj.getString("pin");
-                                list.add(new GPIO(id, description, direction, value, pin));
+                                list.add(new GPIO(id, description, direction, isBoolean(value), pin));
                             }
                             setSwitches(list);
                         } catch (JSONException e) {
@@ -112,7 +115,6 @@ public class Switches extends Activity {
                             e.printStackTrace();
                         }
                     }
-
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                         if (statusCode == 401) {
@@ -135,10 +137,12 @@ public class Switches extends Activity {
     }
 
 
-    public void refreshList()
+    private synchronized void refreshList()
     {
         this.setSwitches();
     }
+
+
 
 
     public void notifyHeimcontrol(GPIO obj, boolean on)
@@ -146,15 +150,15 @@ public class Switches extends Activity {
         if(!socket.isConnected())
             connectToSocket();
 
-        String value = obj.getValue();
-        if(on)
+        String value = "0";
+        if(obj.getValue())
         {
             value = "1";
         }else
         {
             value = "0";
         }
-        obj.setValue(value);
+        obj.setValue(!obj.getValue());
         JSONObject params = new JSONObject();
         try {
             params.put("value", value);
@@ -176,7 +180,6 @@ public class Switches extends Activity {
 
     public void connectToSocket()
     {
-
         if(socket != null && socket.isConnected())
             return;
 
@@ -200,18 +203,21 @@ public class Switches extends Activity {
 
             @Override
             public void onMessage(String data, IOAcknowledge ack) {
-                System.out.println("Server said: " + data);
+                   System.out.println(data);
             }
 
             @Override
             public void onError(SocketIOException socketIOException) {
-                System.out.println("an Error occured");
-                socketIOException.printStackTrace();
+                /*CharSequence text = "Socketio error occurred";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = makeText(context, text, duration);
+                toast.show();
+                socketIOException.printStackTrace();*/
             }
 
             @Override
             public void onDisconnect() {
-                System.out.println("Connection terminated.");
+
             }
 
             @Override
@@ -220,15 +226,64 @@ public class Switches extends Activity {
             }
 
             @Override
-            public void on(String event, IOAcknowledge ack, Object... args) {
-                System.out.println("Server triggered event '" + event + "'");
-                Context context = getApplicationContext();
-                CharSequence text = "Some triggered the door";
-                int duration = Toast.LENGTH_LONG;
-                Toast toast = makeText(context, text, duration);
-                toast.show();
+            public void on(String event, IOAcknowledge ack, Object... args)
+            {
+                JSONObject incoming = (JSONObject) args[0];
+                String id = null;
+                String value = null;
+                try {
+                    id = incoming.getString("id");
+                    value = incoming.getString("value");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                for (int i = 0; i < switchesList.size(); i++)
+                {
+                    if(switchesList.get(i).get_id().equals(id))
+                    {
+                        switchesList.get(i).setValue(isBoolean(value));
+                        switchesList.get(i).setDescription("blah");
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        copySwitchesList(switchesList);
+                    }
+                });
+
             }
         });
+    }
+
+    //This is an ugly hack
+    private synchronized void copySwitchesList(ArrayList<GPIO> switches)
+    {
+        ArrayList<GPIO> s = new ArrayList<GPIO>();
+        s.addAll(switches);
+        this.setSwitches(s);
+    }
+
+    private synchronized boolean isBoolean(String value)
+    {
+        boolean val;
+        if(value.equals("0"))
+        {
+            val = false;
+        }else
+        {
+            val = true;
+        }
+        return val;
+    }
+
+    private synchronized void toastit(String ttext)
+    {
+        CharSequence text = ttext;
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = makeText(context, text, duration);
+        toast.show();
     }
 
 
@@ -264,22 +319,6 @@ public class Switches extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_switches, container, false);
-            return rootView;
-        }
-    }
-
 
     private class GPIOArrayAdapter extends ArrayAdapter<GPIO> {
 
@@ -292,11 +331,11 @@ public class Switches extends Activity {
 
         }
 
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
             GPIOHolder holder = null;
+            GPIO pos = objects.get(position);
 
             if(row == null)
             {
@@ -309,11 +348,11 @@ public class Switches extends Activity {
 
                 row.setTag(holder);
 
-                GPIO pos = objects.get(position);
                 holder.description.setText(pos.getDescription());
                 holder.pin.setText(pos.getPin());
 
                 Switch sswitch = (Switch)row.findViewById(R.id.pinSwitch);
+                sswitch.setChecked(pos.getValue());
                 sswitch.setTag(pos);
                 sswitch.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
                     @Override
@@ -326,6 +365,8 @@ public class Switches extends Activity {
             else
             {
                 holder = (GPIOHolder)row.getTag();
+                Switch sswitch = (Switch)row.findViewById(R.id.pinSwitch);
+                sswitch.setChecked(pos.getValue());
             }
 
             return row;

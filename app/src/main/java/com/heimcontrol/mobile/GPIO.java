@@ -8,10 +8,10 @@ public class GPIO {
     private String _id;
     private String description;
     private String direction;
-    private String value;
+    private boolean value;
     private String pin;
 
-    public GPIO(String _id, String  description, String direction, String value, String pin)
+    public GPIO(String _id, String  description, String direction, boolean value, String pin)
     {
         this._id = _id;
         this.description = description;
@@ -45,11 +45,11 @@ public class GPIO {
         this.direction = direction;
     }
 
-    public String getValue() {
+    public boolean getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(boolean value) {
         this.value = value;
     }
 
