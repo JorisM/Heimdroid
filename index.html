@@ -38,18 +38,16 @@
 
 <img src="images/switches.png" style="max-width: 350px">
 
-<p>On your heimcontrol Server, check out this branch: <code>https://github.com/JorisM/heimcontrol.js/tree/feature/api</code></p>
-
-<p>Download and install app, point your settings url to your Heimcontroljs Server and you are good to go.</p>
-<p>Install apk via adb, download: <a href="app/app.apk">app.apk</a>
+<p>Get the newest version of heimcontroljs (newer than 01/01/2014)</p>
+<p>Download and install app, point your settings url to your Heimcontroljs Server (before you try to log in) and you are good to go.</p>
+<p>Install apk via adb, download: <a href="app/heimdroid.apk">heimdroid.apk</a>
 
 <p>Note: I had to enable port 8080 or whatever on my local firewall, otherwise requests didn't go through. If you have your Server listening on port 80, you can
 don't need to specifiy the port. (i.e <code>http://heimcontrol:80/</code> --&gt; <code>http://heimcontrol/</code>)</p>
 <p>
 Known bugs, will be fixed soon:
 <ul>
-	<li>If you change your url in settings, you need to manually kill the app and restart it, otherwise it won't change the url</li>
-	<li>Changes from Server are not pushed to android device yet.</li>
+	<li>Currently the heimcontroljs api doesn't return the initial toggle state when fetching all toggles.</li>
 </ul>
 </p>
       </section>

@@ -151,14 +151,14 @@ public class Switches extends Activity {
             connectToSocket();
 
         String value = "0";
-        if(obj.getValue())
+        if(on)
         {
             value = "1";
         }else
         {
             value = "0";
         }
-        obj.setValue(!obj.getValue());
+        obj.setValue(on);
         JSONObject params = new JSONObject();
         try {
             params.put("value", value);
@@ -243,7 +243,6 @@ public class Switches extends Activity {
                     if(switchesList.get(i).get_id().equals(id))
                     {
                         switchesList.get(i).setValue(isBoolean(value));
-                        switchesList.get(i).setDescription("blah");
                     }
                 }
                 runOnUiThread(new Runnable() {
@@ -358,6 +357,7 @@ public class Switches extends Activity {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         GPIO item = (GPIO) buttonView.getTag();
+
                         notifyHeimcontrol(item, isChecked);
                     }
                 });
