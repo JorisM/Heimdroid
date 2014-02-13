@@ -166,6 +166,7 @@ public class Switches extends Activity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         socket.emit("gpio-toggle", params);
     }
 
@@ -358,6 +359,7 @@ public class Switches extends Activity {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         GPIO item = (GPIO) buttonView.getTag();
+
                         notifyHeimcontrol(item, isChecked);
                     }
                 });
@@ -366,13 +368,15 @@ public class Switches extends Activity {
             {
                 holder = (GPIOHolder)row.getTag();
                 Switch sswitch = (Switch)row.findViewById(R.id.pinSwitch);
-                sswitch.setChecked(pos.getValue());
+                //sswitch.setChecked(pos.getValue());
             }
 
             return row;
         }
 
     }
+
+
     static class GPIOHolder
     {
         TextView _id;
