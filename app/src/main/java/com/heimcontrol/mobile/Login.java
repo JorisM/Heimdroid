@@ -108,7 +108,7 @@ public class Login extends Activity
         String key = ((Heimcontrol)getApplicationContext()).user.getKey();
         if (key != "")
         {
-            Intent intent = new Intent(this, Switches.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             // finish the Authenticate Activity, so that we have no entry in the history
             finish();

@@ -33,4 +33,5 @@ android {
 dependencies {
     compile files('libs/android-async-http-1.4.4.jar')
     compile files('libs/socketio.jar')
+    compile files('libs/android-support-v13.jar')
 }

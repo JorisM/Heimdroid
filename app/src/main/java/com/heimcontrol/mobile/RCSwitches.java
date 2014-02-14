@@ -30,7 +30,7 @@ import io.socket.*;
 import static android.widget.Toast.makeText;
 
 
-public class Switches extends Fragment {
+public class RCSwitches extends Fragment {
 
     private SocketIO socket;
     private String url;
@@ -100,7 +100,7 @@ public class Switches extends Fragment {
 
     public void setSwitches()
     {
-        final Switches that = this;
+        final RCSwitches that = this;
         RestClient.get(
                 "api/gpio/get",
                 new JsonHttpResponseHandler() {
@@ -209,7 +209,7 @@ public class Switches extends Fragment {
 
             @Override
             public void onMessage(String data, IOAcknowledge ack) {
-                   System.out.println(data);
+                System.out.println(data);
             }
 
             @Override
@@ -339,7 +339,7 @@ public class Switches extends Fragment {
         List<GPIO> objects;
 
         public GPIOArrayAdapter(Context context, int textViewResourceId,
-                                  List<GPIO> objects) {
+                                List<GPIO> objects) {
             super(context, textViewResourceId, objects);
             this.objects = objects;
 
