@@ -49,6 +49,15 @@ public class MainActivity extends FragmentActivity {
 
     }
 
+    public void logout()
+    {
+        ((Heimcontrol) getApplicationContext()).user.setKey("");
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
+    }
+
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState)
@@ -78,10 +87,13 @@ public class MainActivity extends FragmentActivity {
         {
             for (int i=0; i<mTabsAdapter.fragments.size(); i++)
             {
-                //Refresh tab = (Refresh)mTabsAdapter.fragments.get(i);
-                //tab.updateData();
+                RefreshInterface tab = (RefreshInterface)mTabsAdapter.fragments.get(i);
+                tab.refresh();
             }
             return true;
+        }else if (id == R.id.action_logout)
+        {
+           this.logout();
         }
         return super.onOptionsItemSelected(item);
     }

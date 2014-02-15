@@ -19,8 +19,10 @@ import android.widget.Toast;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
 import org.json.*;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +32,13 @@ import io.socket.*;
 import static android.widget.Toast.makeText;
 
 
-public class RCSwitches extends Fragment {
+public class RCSwitches extends Fragment implements RefreshInterface {
 
     private SocketIO socket;
     private String url;
     private Context context;
-    private GPIOArrayAdapter listAdapter;
-    private ArrayList<GPIO> switchesList;
+    private RCSwitchArrayAdapter listAdapter;
+    private ArrayList<RCSwitch> switchesList;
     private LayoutInflater inflater;
 
     @Override
@@ -45,7 +47,7 @@ public class RCSwitches extends Fragment {
         context = getActivity();
 
         if(switchesList == null)
-            switchesList = new ArrayList<GPIO>();
+            switchesList = new ArrayList<RCSwitch>();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.url = prefs.getString("heimcontrol_url", "");
@@ -75,7 +77,7 @@ public class RCSwitches extends Fragment {
     public void attachView(View myView)
     {
         final ListView listview = (ListView) myView.findViewById(R.id.switchesList);
-        listAdapter = new GPIOArrayAdapter(context, R.layout.fragment_switches, getSwitchesList());
+        listAdapter = new RCSwitchArrayAdapter(context, R.layout.fragment_switches, getSwitchesList());
         listview.setAdapter(listAdapter);
 
     }
@@ -91,32 +93,45 @@ public class RCSwitches extends Fragment {
     }
 
 
-    public ArrayList<GPIO> getSwitchesList()
+    public ArrayList<RCSwitch> getSwitchesList()
     {
         if(switchesList == null)
-            switchesList = new ArrayList<GPIO>();
+            switchesList = new ArrayList<RCSwitch>();
         return switchesList;
     }
 
     public void setSwitches()
     {
         final RCSwitches that = this;
-        RestClient.get(
-                "api/gpio/get",
+        JSONObject data = new JSONObject();
+        try {
+            data.put("method", "rcswitch");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        StringEntity entity = null;
+        try {
+            entity = new StringEntity(data.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        RestClient.postJSON(
+                context,
+                "api/arduino/post",
+                entity,
                 new JsonHttpResponseHandler() {
                     @Override
-                    public void onSuccess(JSONArray responseData)
-                    {
+                    public void onSuccess(JSONArray responseData) {
                         try {
-                            ArrayList<GPIO> list = new ArrayList<GPIO>();
+                            ArrayList<RCSwitch> list = new ArrayList<RCSwitch>();
                             for (int i = 0; i < responseData.length(); i++) {
                                 JSONObject obj = responseData.getJSONObject(i);
                                 String id = obj.getString("_id");
                                 String value = obj.getString("value");
-                                String direction = obj.getString("direction");
                                 String description = obj.getString("description");
                                 String pin = obj.getString("pin");
-                                list.add(new GPIO(id, description, direction, isBoolean(value), pin));
+                                String code = obj.getString("code");
+                                list.add(new RCSwitch(id, description, isBoolean(value), pin, code));
                             }
                             setSwitches(list);
                         } catch (JSONException e) {
@@ -124,6 +139,7 @@ public class RCSwitches extends Fragment {
                             e.printStackTrace();
                         }
                     }
+
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                         if (statusCode == 401) {
@@ -138,7 +154,7 @@ public class RCSwitches extends Fragment {
         );
     }
 
-    private synchronized void setSwitches(ArrayList<GPIO> list)
+    private synchronized void setSwitches(ArrayList<RCSwitch> list)
     {
         getSwitchesList().clear();
         getSwitchesList().addAll(list);
@@ -154,13 +170,13 @@ public class RCSwitches extends Fragment {
 
 
 
-    public void notifyHeimcontrol(GPIO obj, boolean on)
+    public void notifyHeimcontrol(RCSwitch obj, boolean on)
     {
         if(!socket.isConnected())
             connectToSocket();
 
         String value = "0";
-        if(obj.getValue())
+        if(!obj.getValue())
         {
             value = "1";
         }else
@@ -176,12 +192,12 @@ public class RCSwitches extends Fragment {
             e.printStackTrace();
         }
 
-        socket.emit("gpio-toggle", params);
+        socket.emit("arduino-rcswitch", params);
     }
 
     public void logout()
     {
-        //todo logout, move someplace else
+        ((MainActivity)context).logout();
     }
 
     public void connectToSocket()
@@ -253,24 +269,22 @@ public class RCSwitches extends Fragment {
                         switchesList.get(i).setDescription("blah");
                     }
                 }
-                //todo: check whether this refresh is still working
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        copySwitchesList(switchesList);
-                    }
-                });
             }
         });
     }
+    public void refresh()
+    {
+        this.refreshList();
+        this.connectToSocket();
+    }
 
     //This is an ugly hack
-    private synchronized void copySwitchesList(ArrayList<GPIO> switches)
+    /*private synchronized void copySwitchesList(ArrayList<RCSwitch> switches)
     {
-        ArrayList<GPIO> s = new ArrayList<GPIO>();
+        ArrayList<RCSwitch> s = new ArrayList<RCSwitch>();
         s.addAll(switches);
         this.setSwitches(s);
-    }
+    }*/
 
     private synchronized boolean isBoolean(String value)
     {
@@ -334,12 +348,12 @@ public class RCSwitches extends Fragment {
 */
 
 
-    private class GPIOArrayAdapter extends ArrayAdapter<GPIO> {
+    private class RCSwitchArrayAdapter extends ArrayAdapter<RCSwitch> {
 
-        List<GPIO> objects;
+        List<RCSwitch> objects;
 
-        public GPIOArrayAdapter(Context context, int textViewResourceId,
-                                List<GPIO> objects) {
+        public RCSwitchArrayAdapter(Context context, int textViewResourceId,
+                                List<RCSwitch> objects) {
             super(context, textViewResourceId, objects);
             this.objects = objects;
 
@@ -348,15 +362,15 @@ public class RCSwitches extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
-            GPIOHolder holder = null;
-            GPIO pos = objects.get(position);
+            RCSwitchHolder holder = null;
+            RCSwitch pos = objects.get(position);
 
             if(row == null)
             {
                 LayoutInflater inflater = ((Activity)getContext()).getLayoutInflater();
                 row = inflater.inflate(R.layout.fragment_switches, parent, false);
 
-                holder = new GPIOHolder();
+                holder = new RCSwitchHolder();
                 holder.pin = (TextView)row.findViewById(R.id.pin);
                 holder.description = (TextView)row.findViewById(R.id.description);
 
@@ -371,7 +385,7 @@ public class RCSwitches extends Fragment {
                 sswitch.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        GPIO item = (GPIO) buttonView.getTag();
+                        RCSwitch item = (RCSwitch) buttonView.getTag();
 
                         notifyHeimcontrol(item, isChecked);
                     }
@@ -379,7 +393,7 @@ public class RCSwitches extends Fragment {
             }
             else
             {
-                holder = (GPIOHolder)row.getTag();
+                holder = (RCSwitchHolder)row.getTag();
                 Switch sswitch = (Switch)row.findViewById(R.id.pinSwitch);
                 //sswitch.setChecked(pos.getValue());
             }
@@ -390,7 +404,7 @@ public class RCSwitches extends Fragment {
     }
 
 
-    static class GPIOHolder
+    static class RCSwitchHolder
     {
         TextView _id;
         TextView description;

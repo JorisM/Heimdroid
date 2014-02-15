@@ -30,7 +30,7 @@ import io.socket.*;
 import static android.widget.Toast.makeText;
 
 
-public class Switches extends Fragment {
+public class Switches extends Fragment implements RefreshInterface {
 
     private SocketIO socket;
     private String url;
@@ -160,7 +160,7 @@ public class Switches extends Fragment {
             connectToSocket();
 
         String value = "0";
-        if(obj.getValue())
+        if(!obj.getValue())
         {
             value = "1";
         }else
@@ -181,8 +181,9 @@ public class Switches extends Fragment {
 
     public void logout()
     {
-        //todo logout, move someplace else
+        ((MainActivity)context).logout();
     }
+
 
     public void connectToSocket()
     {
@@ -254,12 +255,12 @@ public class Switches extends Fragment {
                     }
                 }
                 //todo: check whether this refresh is still working
-                getActivity().runOnUiThread(new Runnable() {
+               /* getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         copySwitchesList(switchesList);
                     }
-                });
+                });*/
             }
         });
     }
@@ -297,41 +298,11 @@ public class Switches extends Fragment {
         return ((MainActivity)context).getKey();
     }
 
-
-    //todo: move to main activity with the help of a interface
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.switches, menu);
-        return true;
+    public void refresh()
+    {
+        this.refreshList();
+        this.connectToSocket();
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-
-            return true;
-        }
-        if (id == R.id.action_logout) {
-            this.logout();
-            return true;
-        }
-        if (id == R.id.action_refresh) {
-            this.refreshList();
-            this.connectToSocket();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-*/
 
 
     private class GPIOArrayAdapter extends ArrayAdapter<GPIO> {
