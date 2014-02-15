@@ -20,12 +20,12 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
         versionCode 1
-        versionName "0.1.2"
+        versionName "0.1.3"
     }
     buildTypes {
         release {
             runProguard false
-            versionNameSuffix '0.1.2'
+            versionNameSuffix '0.1.3'
 }
 }
 }
