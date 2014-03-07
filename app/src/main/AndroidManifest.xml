@@ -27,6 +27,10 @@
             android:name="com.heimcontrol.mobile.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+        <activity
+            android:name="com.heimcontrol.mobile.MainActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
     </application>
 
 </manifest>

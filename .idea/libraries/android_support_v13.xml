@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="WebSocket">
+  <library name="android-support-v13">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/libs/WebSocket.jar!/" />
+      <root url="jar://$PROJECT_DIR$/app/libs/android-support-v13.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

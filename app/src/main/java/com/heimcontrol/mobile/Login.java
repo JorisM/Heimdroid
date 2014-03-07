@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +59,9 @@ public class Login extends Activity
             e.printStackTrace();
         }
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        RestClient.setBaseUrl(prefs.getString("heimcontrol_url", ""));
+
         RestClient.postJSON(
                 (Heimcontrol) getApplicationContext(),
                 "api/login",
@@ -104,7 +108,7 @@ public class Login extends Activity
         String key = ((Heimcontrol)getApplicationContext()).user.getKey();
         if (key != "")
         {
-            Intent intent = new Intent(this, Switches.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             // finish the Authenticate Activity, so that we have no entry in the history
             finish();

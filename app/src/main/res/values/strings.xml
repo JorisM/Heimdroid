@@ -7,5 +7,6 @@
     <string name="title_activity_switches">Switches</string>
     <string name="logout">Logout</string>
     <string name="refresh">Refresh</string>
+    <string name="title_activity_main">MainActivity</string>
 
 </resources>

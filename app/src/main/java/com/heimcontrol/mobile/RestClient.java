@@ -78,4 +78,9 @@ public class RestClient
         BASE_URL = prefs.getString("heimcontrol_url", "");
     }
 
+    public static void setBaseUrl(String url)
+    {
+        BASE_URL = url;
+    }
+
 }
