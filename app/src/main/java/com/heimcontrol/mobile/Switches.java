@@ -57,7 +57,11 @@ public class Switches extends Fragment implements RefreshInterface {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.url = prefs.getString("heimcontrol_url", "");
 
-        if (getKey().equals("") || this.url.equals(""))
+        String key = getKey();
+
+        // this is not doing what it should FIXME
+        // workaround for now to prevent crashes
+        if ((key != null && key.equals("")) || this.url.equals(""))
         {
             CharSequence text = "No key available, please check heimcontrol url in settings and log in.";
             int duration = Toast.LENGTH_SHORT;
