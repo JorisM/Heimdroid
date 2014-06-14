@@ -1,69 +1,70 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+        <meta name="description" content="Heimdroid: Android app for Heimcontrol.js" />
+        <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+        <title>Heimdroid</title>
+    </head>
+    <body>
 
-<head>
-<meta charset='utf-8' />
-<meta http-equiv="X-UA-Compatible" content="chrome=1" />
-<meta name="description" content="Heimdroid : Android app for heimcontroljs" />
+        <!-- HEADER -->
+        <div id="header_wrap" class="outer">
+            <header class="inner">
+                <a id="forkme_banner" href="https://github.com/JorisM/Heimdroid">View on GitHub</a>
 
-<link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+                <h1 id="project_title">Heimdroid</h1>
+                <h2 id="project_tagline">Android app for Heimcontrol.js</h2>
 
-<title>Heimdroid</title>
-</head>
+                <section id="downloads">
+                    <a class="zip_download_link" href="https://github.com/JorisM/Heimdroid/zipball/master">Download this project as a .zip file</a>
+                    <a class="tar_download_link" href="https://github.com/JorisM/Heimdroid/tarball/master">Download this project as a .tar.gz file</a>
+                </section>
+            </header>
+        </div>
 
-<body>
+        <!-- MAIN CONTENT -->
+        <div id="main_content_wrap" class="outer">
+            <section id="main_content" class="inner">
+            <h1>
+                <a name="heimdroid" class="anchor" href="#heimdroid"><span class="octicon octicon-link"></span></a>
+                Heimdroid
+            </h1>
+            <h2>Android app for Heimcontrol.js</h2>
 
-<!-- HEADER -->
-<div id="header_wrap" class="outer">
-	<header class="inner">
-		<a id="forkme_banner" href="https://github.com/JorisM/Heimdroid">View on GitHub</a>
+            <img src="images/switches.png" style="max-width: 350px">
 
-		<h1 id="project_title">Heimdroid</h1>
-		<h2 id="project_tagline">Android app for heimcontroljs</h2>
+            <h3>Installation</h3>
+            <ul>
+                <li>Get the newest version of <a href="https://github.com/ni-c/heimcontrol.js">Heimcontrol.js</a> (newer than 01/01/2014)</li>
+                <li>Install the <a href="https://play.google.com/store/apps/details?id=com.heimcontrol.mobile">app on the Play Store</a></li>
+                <li>Configure the URL of your Heimcontrol.js server (Menu › Settings)</li>
+                <li>Log in and you are good to go!</li>
+            </ul>
+            <p>
+                Note: I had to enable port <code>8080</code> or whatever on my
+                local firewall, otherwise requests didn’t go through. If you have
+                your server listening on port <code>80</code>, you don’t need to
+                specifiy the port (i.e., <code>http://heimcontrol/</code> is the
+                same as <code>http://heimcontrol:80/</code>).
+             </p>
 
-		<section id="downloads">
-			<a class="zip_download_link" href="https://github.com/JorisM/Heimdroid/zipball/master">Download this project as a .zip file</a>
-			<a class="tar_download_link" href="https://github.com/JorisM/Heimdroid/tarball/master">Download this project as a tar.gz file</a>
-		</section>
-	</header>
-</div>
+            <h3>Known bugs, will be fixed soon</h3>
+            <ul>
+                <li>Currently the Heimcontrol.js api doesn’t return the initial toggle state when fetching all toggles.</li>
+            </ul>
+            <strong>For bugs and feature requeusts, please open a GitHub issue.</strong>
+        </section>
+    </div>
 
-<!-- MAIN CONTENT -->
-<div id="main_content_wrap" class="outer">
-	<section id="main_content" class="inner">
-		<h1>
-			<a name="heimdroid" class="anchor" href="#heimdroid"><span class="octicon octicon-link"></span></a>Heimdroid
-		</h1>
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+        <footer class="inner">
+            <p class="copyright">Heimdroid maintained by <a href="https://github.com/JorisM">JorisM</a></p>
+            <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+        </footer>
+    </div>
 
-		<h2>Android app for heimcontroljs</h2>
-
-		<img src="images/switches.png" style="max-width: 350px">
-
-		<h3>Installation</h3>
-		<ul>
-			<li>Get the newest version of heimcontroljs (newer than 01/01/2014)</li>
-			<li>Install the app on the play store</li>
-			<li>Download and install app, point your settings url to your Heimcontroljs Server (before you try to log in) and you are good to go.</li>
-		</ul>
-
-		<p>Note: I had to enable port 8080 or whatever on my local firewall, otherwise requests didn't go through. If you have your Server listening on port 80, you can
-		don't need to specifiy the port. (i.e <code>http://heimcontrol:80/</code> --&gt; <code>http://heimcontrol/</code>)</p>
-
-		<h3>Known bugs, will be fixed soon</h3>
-		<ul>
-			<li>Currently the heimcontroljs api doesn't return the initial toggle state when fetching all toggles.</li>
-		</ul>
-		<h3>For bugs and feature requeusts, please open a github issue.</h3>
-	</section>
-</div>
-
-<!-- FOOTER  -->
-<div id="footer_wrap" class="outer">
-	<footer class="inner">
-		<p class="copyright">Heimdroid maintained by <a href="https://github.com/JorisM">JorisM</a></p>
-		<p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-	</footer>
-</div>
-
-</body>
+    </body>
 </html>
